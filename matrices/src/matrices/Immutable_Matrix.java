@@ -7,6 +7,8 @@ import java.util.stream.IntStream;
 /**
  * Elke instantie van deze klasse stelt een matrix van
  * kommagetallen voor.
+ * 
+ * @immutable
  * 	
  * @invar | numberOfRows() >= 0
  * @invar | numberOfColumns() >= 0
@@ -98,9 +100,10 @@ public class Immutable_Matrix {
 	}
 	
 	/**
-	 * @creates | result
+	 * @creates | result, ...result
 	 * @post | result != null
 	 * @post | result.length == numberOfRows()
+	 * @post | Arrays.stream(result).allMatch(rij -> rij != null && rij.length == numberOfColumns())
 	 * @post | IntStream.range(1, numberOfRows()).allMatch(i -> 
 	 * 		 | 		IntStream.range(1, numberOfColumns()).allMatch(j -> result[i-1][j-1] == getElement(i,j)))
 	 * 
@@ -117,8 +120,13 @@ public class Immutable_Matrix {
 	
 	
 	/**
+	 * @pre | 0 <= numberOfRows
+	 * @pre | 0 <= numberOfColumns
+	 * @pre | elementen.length == numberOfRows * numberOfColumns
+	 * 
 	 * @throws IllegalArgumentException
 	 * 	| elementen == null
+	 * @inspects | elementen
 	 * @post | this.numberOfRows() == numberOfRows
 	 * @post | this.numberOfColumns() == numberOfColumns
 	 * @post | Arrays.equals(this.toRowMajorArray(), elementen)
@@ -150,6 +158,9 @@ public class Immutable_Matrix {
 	}
 	
 	/**
+	 * @pre | M1.numberOfRows() == M2.numberOfColumns()
+	 * @pre | M1.numberOfRows() == M2.numberOfColumns()
+	 * 
 	 * @throws IllegalArgumentException
 	 * 	| M1 == null
 	 * @throws IllegalArgumentException
