@@ -1,5 +1,6 @@
 package matrices;
 
+import java.util.Arrays;
 import java.util.stream.IntStream;
 
 /**
@@ -51,7 +52,7 @@ public class Immutable_Matrix {
 	 * @post | result != null
 	 * @post | result.length == numberOfRows() * numberOfColumns()
 	 * @post | IntStream.range(1, numberOfColumns()).allMatch(i ->
-	 * 		 |			IntStream.range(1, numberOfRows()).allMatch(j -> result[(i*j)+ (j-1)] == getElement(i,j)))
+	 * 		 |			IntStream.range(1, numberOfRows()).allMatch(j -> result[((i-1)*numberOfColumns())+ (j-1)] == getElement(i,j)))
 	 * 
 	 */
 	public double[] toRowMajorArray() {
@@ -64,7 +65,7 @@ public class Immutable_Matrix {
 	 * @post | result != null
 	 * @post | result.length == numberOfRows() * numberOfColumns()
 	 * @post | IntStream.range(1, numberOfRows()).allMatch(i ->
-	 * 		 |			IntStream.range(1, numberOfColumns()).allMatch(j -> result[(i*j)+ (j-1)] == getElement(j,i)))
+	 * 		 |			IntStream.range(1, numberOfColumns()).allMatch(j -> result[((i-1)*numberOfColumns())+ (j-1)] == getElement(j,i)))
 	 * 
 	 */
 	public double[] toColumnMajorArray() {
@@ -88,7 +89,7 @@ public class Immutable_Matrix {
 	 * 	| elementen == null
 	 * @post | this.numberOfRows() == numberOfRows
 	 * @post | this.numberOfColumns() == numberOfColumns
-	 * @post | toRowMajorArray() == elementen
+	 * @post | Arrays.equals(toRowMajorArray(), elementen)
 	 * 
 	 */
 	public Immutable_Matrix(int numberOfRows, int numberOfColumns, double[] elementen) {
