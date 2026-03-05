@@ -13,6 +13,8 @@ class Immutable_MatrixTest {
 	void test() {
 		assertEquals(M1.numberOfRows(), 2);
 		assertEquals(M1.numberOfColumns(), 2);
+		assertArrayEquals(M1.toColumnMajorArray(), new double[] {1,3,2,4});
+
 		assertEquals(M1.getElement(1,1) ,1);
 		assertEquals(M1.getElement(1,2) ,2);
 		assertEquals(M1.getElement(2,1) ,3);
@@ -34,8 +36,6 @@ class Immutable_MatrixTest {
 		assertEquals(M3.getElement(2,1) ,9);
 		assertEquals(M3.getElement(2,2) ,12);
 
-
-		
 	}
 
 }
