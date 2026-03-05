@@ -1,5 +1,7 @@
 package matrices;
 
+
+import java.util.Arrays;
 import java.util.stream.IntStream;
 
 /**
@@ -12,6 +14,19 @@ import java.util.stream.IntStream;
  */
 public class Immutable_Matrix {
 	
+	/**
+	 * 
+	 * @representationObject
+	 * @invar | RMarray != null
+	 * @invar | rows >= 0
+	 * @invar | columns >= 0
+	 * @invar | RMarray.length == rows*columns
+	 * 
+	 */
+	private double[] RMarray;
+	private int rows;
+	private int columns;
+	
 	
 	/**
 	 * 
@@ -20,7 +35,7 @@ public class Immutable_Matrix {
 	 * 
 	 */
 	public int numberOfRows() {
-		throw new RuntimeException("Not yet implemented");
+		return rows;
 	}
 	
 	/**
@@ -29,7 +44,7 @@ public class Immutable_Matrix {
 	 * 
 	 */
 	public int numberOfColumns() {
-		throw new RuntimeException("Not yet implemented");
+		return columns;
 	}
 	
 	/**
@@ -42,20 +57,11 @@ public class Immutable_Matrix {
 	 * 
 	 */
 	public double getElement(int row, int column) {
-		throw new RuntimeException("Not yet implemented");
-	}
-	
-	/**
-	 * 
-	 * @creates | result
-	 * @post | result != null
-	 * @post | result.length == numberOfRows() * numberOfColumns()
-	 * @post | IntStream.range(1, numberOfColumns()).allMatch(i ->
-	 * 		 |			IntStream.range(1, numberOfRows()).allMatch(j -> result[(i*j)+ (j-1)] == getElement(i,j)))
-	 * 
-	 */
-	public double[] toRowMajorArray() {
-		throw new RuntimeException("Not yet implemented");
+		if (row < 0 || row > numberOfRows())
+			throw new IllegalArgumentException("`row` is geen geldige waarde");
+		if (column < 0 || row > numberOfColumns())
+			throw new IllegalArgumentException("`column` is geen geldige waarde");
+		return (RMarray.clone())[(((row-1)*columns) + column)-1];
 	}
 	
 	/**
@@ -64,11 +70,31 @@ public class Immutable_Matrix {
 	 * @post | result != null
 	 * @post | result.length == numberOfRows() * numberOfColumns()
 	 * @post | IntStream.range(1, numberOfRows()).allMatch(i ->
-	 * 		 |			IntStream.range(1, numberOfColumns()).allMatch(j -> result[(i*j)+ (j-1)] == getElement(j,i)))
+	 * 		 |			IntStream.range(1, numberOfColumns()).allMatch(j -> result[((i-1)*numberOfColumns())+ (j-1)] == getElement(i,j)))
+	 * 
+	 */
+	public double[] toRowMajorArray() {
+		return RMarray.clone();
+	}
+	
+	/**
+	 * 
+	 * @creates | result
+	 * @post | result != null
+	 * @post | result.length == numberOfRows() * numberOfColumns()
+	 * @post | IntStream.range(1, numberOfRows()).allMatch(i ->
+	 * 		 |			IntStream.range(1, numberOfColumns()).allMatch(j -> result[((i-1)*numberOfColumns())+ (j-1)] == getElement(j,i)))
 	 * 
 	 */
 	public double[] toColumnMajorArray() {
-		throw new RuntimeException("Not yet implemented");
+		double[] result = new double[RMarray.clone().length];
+		for (int j = 0; j < columns; j++) {
+			for(int i = 0; i < rows; i++) {
+				result[(j*rows) + i] = RMarray.clone()[(i*columns)+j];
+			}	
+		}
+		return result;
+		
 	}
 	
 	/**
@@ -80,21 +106,30 @@ public class Immutable_Matrix {
 	 * 
 	 */
 	public double[][] toArrayOfRows() {
-		throw new RuntimeException("Not yet implemented");
+		double[][] result = new double[columns][rows];
+		for (int i = 0; i < rows; i++) {
+			for (int j = 0; j < columns; j++) {
+				result[i][j] = (RMarray.clone())[(i*columns) + j];
+			}
+		}
+		return result;
 	}
+	
 	
 	/**
 	 * @throws IllegalArgumentException
 	 * 	| elementen == null
 	 * @post | this.numberOfRows() == numberOfRows
 	 * @post | this.numberOfColumns() == numberOfColumns
-	 * @post | toRowMajorArray() == elementen
+	 * @post | Arrays.equals(this.toRowMajorArray(), elementen)
 	 * 
 	 */
 	public Immutable_Matrix(int numberOfRows, int numberOfColumns, double[] elementen) {
 		if (elementen == null)
 			throw new IllegalArgumentException("`elementen` is null");
-		throw new RuntimeException("Not yet implemented");
+		this.RMarray = elementen.clone();
+		this.rows = numberOfRows;
+		this.columns = numberOfColumns;
 	}
 	
 	/**
@@ -107,10 +142,19 @@ public class Immutable_Matrix {
 	 * 		 |		IntStream.range(1, numberOfRows()).allMatch(j -> result.getElement(i,j) == this.getElement(i,j) * multiplier))
 	 */
 	public Immutable_Matrix scaled(double multiplier) {
-		throw new RuntimeException("Not yet implemented");
+		double[] scaled_array = new double[RMarray.clone().length];
+		for (int i = 0; i < scaled_array.length; i++) {
+			scaled_array[i] = RMarray.clone()[i] * multiplier;
+		}
+		return new Immutable_Matrix(rows, columns, scaled_array);
 	}
 	
 	/**
+	 * @throws IllegalArgumentException
+	 * 	| M1 == null
+	 * @throws IllegalArgumentException
+	 * 	| M2 == null
+	 * 
 	 * @creates | result
 	 * 
 	 * @post | result != null
@@ -122,7 +166,14 @@ public class Immutable_Matrix {
 	 * 		 |		IntStream.range(1, result.numberOfRows()).allMatch(j -> result.getElement(i,j) == M1.getElement(i,j) + M2.getElement(i,j)))
 	 */
 	static public Immutable_Matrix plus(Immutable_Matrix M1, Immutable_Matrix M2) {
-		throw new RuntimeException("Not yet implemented");
+		if (M1 == null || M2 == null)
+			throw new IllegalArgumentException("`M1` of `M2` is null");
+		double[] result_elementen = new double[M1.toRowMajorArray().length];
+		for (int i = 0; i < result_elementen.length; i++) {
+			result_elementen[i] = M1.toRowMajorArray()[i] + M2.toRowMajorArray()[i];
+		}
+		return new Immutable_Matrix(M1.rows, M1.columns, result_elementen);
+		
 	}
 	
 	
