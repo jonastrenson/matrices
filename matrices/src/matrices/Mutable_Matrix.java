@@ -16,13 +16,14 @@ public class Mutable_Matrix {
 	/**
 	 * 
 	 * @representationObject
-	 * @invar | RMarray != null
+	 * @invar | AOR != null
 	 * @invar | rows >= 0
 	 * @invar | columns >= 0
-	 * @invar | RMarray.length == rows*columns
+	 * @invar | AOR.length == rows
+	 * @invar | IntStream.range(0, rows).allMatch(i -> AOR[i].length == columns)
 	 * 
 	 */
-	private double[] RMarray;
+	private double[][] AOR;
 	private int rows;
 	private int columns;
 	
@@ -60,7 +61,7 @@ public class Mutable_Matrix {
 			throw new IllegalArgumentException("`row` is geen geldige waarde");
 		if (column < 0 || row > numberOfColumns())
 			throw new IllegalArgumentException("`column` is geen geldige waarde");
-		return (RMarray.clone())[(((row-1)*columns) + column)-1];
+		return (AOR.clone())[row-1][column-1];
 	}
 	
 	/**
@@ -73,7 +74,13 @@ public class Mutable_Matrix {
 	 * 
 	 */
 	public double[] toRowMajorArray() {
-		return RMarray.clone();
+		double[] result = new double[rows*columns];
+		for (int i = 0; i < AOR.length; i++) {
+			for (int j = 0; j < columns; j++) {
+				result[(i*columns) + j] = AOR[i][j];
+			}
+		}
+		return result;
 	}
 	
 	/**
@@ -86,11 +93,11 @@ public class Mutable_Matrix {
 	 * 
 	 */
 	public double[] toColumnMajorArray() {
-		double[] result = new double[RMarray.clone().length];
-		for (int j = 0; j < columns; j++) {
-			for(int i = 0; i < rows; i++) {
-				result[(j*rows) + i] = RMarray.clone()[(i*columns)+j];
-			}	
+		double[] result = new double[rows*columns];
+		for (int i = 0; i < AOR.length; i++) {
+			for (int j = 0; j < columns; j++) {
+				result[(j*rows) + i] = AOR[i][j];
+			}
 		}
 		return result;
 	}
@@ -104,13 +111,7 @@ public class Mutable_Matrix {
 	 * 
 	 */
 	public double[][] toArrayOfRows() {
-		double[][] result = new double[columns][rows];
-		for (int i = 0; i < rows; i++) {
-			for (int j = 0; j < columns; j++) {
-				result[i][j] = (RMarray.clone())[(i*columns) + j];
-			}
-		}
-		return result;
+		return AOR.clone();
 	}
 	
 	/**
@@ -124,9 +125,20 @@ public class Mutable_Matrix {
 	public Mutable_Matrix(int numberOfRows, int numberOfColumns, double[] elementen) {
 		if (elementen == null)
 			throw new IllegalArgumentException("`elementen` is null");
-		this.RMarray = elementen.clone();
+		
+		// elementen omzetten in een ArrayOfRows
+		double[][] AOR_dummy = new double[numberOfColumns][numberOfRows];
+		double[] result = elementen.clone();
+		for (int i = 0; i < numberOfRows; i++) {
+			for (int j = 0; j < numberOfColumns; j++) {
+				AOR_dummy[i][j] = result[(i*numberOfColumns) + j];
+			}
+		}
+	
+		this.AOR = AOR_dummy;
 		this.rows = numberOfRows;
-		this.columns = numberOfColumns;	}
+		this.columns = numberOfColumns;
+	}
 	
 	/**
 	 * @mutates | this
@@ -136,11 +148,14 @@ public class Mutable_Matrix {
 	 * @post | IntStream.range(0, (numberOfColumns()* numberOfRows()) -1).allMatch(i -> toRowMajorArray()[i] == old(toRowMajorArray().clone())[i] * multiplier)
 	 */
 	public void scale(double multiplier) {
-		double[] scaled_array = new double[RMarray.clone().length];
-		for (int i = 0; i < scaled_array.length; i++) {
-			scaled_array[i] = RMarray.clone()[i] * multiplier;
+		double[][] AOR_dummy = AOR.clone();
+		double[][] scaled_array = new double[numberOfColumns()][numberOfRows()];
+		for (int i = 0; i < numberOfRows(); i++) {
+			for (int j = 0; j < numberOfColumns(); j++) {
+				scaled_array[i][j] = AOR_dummy[i][j] * multiplier;
+			}
 		}
-		RMarray = scaled_array;
+		AOR = scaled_array;
 	}
 	
 	/**
@@ -171,15 +186,17 @@ public class Mutable_Matrix {
 		if (other.numberOfRows() != this.numberOfRows())
 			throw new IllegalArgumentException("`other` heeft niet hetzelfde aantal rijen als `this`");
 		
-		double[] thisArray = this.toRowMajorArray().clone();
-	    double[] otherArray = other.toRowMajorArray().clone();
+		double[][] thisArray = AOR.clone();
+	    double[][] otherArray = other.toArrayOfRows().clone();
 
 		
-		double[] result_elementen = new double[other.toRowMajorArray().length];
-		for (int i = 0; i < result_elementen.length; i++) {
-			result_elementen[i] = thisArray[i] + otherArray[i];
+		double[][] result_elementen = new double[numberOfColumns()][numberOfRows()];
+		for (int i = 0; i < numberOfRows(); i++) {
+			for (int j = 0; j < numberOfColumns(); j++) {
+				result_elementen[i][j] = thisArray[i][j] + otherArray[i][j];
+			}
 		}
-		RMarray = result_elementen;
+		AOR = result_elementen;
 		
 	}
 	
