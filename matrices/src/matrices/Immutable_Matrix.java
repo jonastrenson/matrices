@@ -18,12 +18,14 @@ public class Immutable_Matrix {
 	
 	/**
 	 * 
-	 * @representationObject
 	 * @invar | RMarray != null
 	 * @invar | rows >= 0
 	 * @invar | columns >= 0
 	 * @invar | RMarray.length == rows*columns
 	 * 
+	 */
+	/**
+	 * @representationObject
 	 */
 	private double[] RMarray;
 	private int rows;
