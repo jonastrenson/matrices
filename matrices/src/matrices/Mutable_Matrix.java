@@ -1,5 +1,6 @@
 package matrices;
 
+import java.util.Arrays;
 import java.util.stream.IntStream;
 
 /**
@@ -68,7 +69,7 @@ public class Mutable_Matrix {
 	 * @post | result != null
 	 * @post | result.length == numberOfRows() * numberOfColumns()
 	 * @post | IntStream.range(1, numberOfColumns()).allMatch(i ->
-	 * 		 |			IntStream.range(1, numberOfRows()).allMatch(j -> result[(i*j)+ (j-1)] == getElement(i,j)))
+	 * 		 |			IntStream.range(1, numberOfRows()).allMatch(j -> result[((i-1)*numberOfColumns())+ (j-1)] == getElement(i,j)))
 	 * 
 	 */
 	public double[] toRowMajorArray() {
@@ -81,7 +82,7 @@ public class Mutable_Matrix {
 	 * @post | result != null
 	 * @post | result.length == numberOfRows() * numberOfColumns()
 	 * @post | IntStream.range(1, numberOfRows()).allMatch(i ->
-	 * 		 |			IntStream.range(1, numberOfColumns()).allMatch(j -> result[(i*j)+ (j-1)] == getElement(j,i)))
+	 * 		 |			IntStream.range(1, numberOfColumns()).allMatch(j -> result[((i-1)*numberOfColumns())+ (j-1)] == getElement(j,i)))
 	 * 
 	 */
 	public double[] toColumnMajorArray() {
@@ -117,7 +118,7 @@ public class Mutable_Matrix {
 	 * 	| elementen == null
 	 * @post | this.numberOfRows() == numberOfRows
 	 * @post | this.numberOfColumns() == numberOfColumns
-	 * @post | toRowMajorArray() == elementen
+	 * @post | Arrays.equals(toRowMajorArray(), elementen)
 	 * 
 	 */
 	public Mutable_Matrix(int numberOfRows, int numberOfColumns, double[] elementen) {
@@ -159,8 +160,8 @@ public class Mutable_Matrix {
 	 * @post | other.numberOfRows() == old(this.numberOfRows())
 	 * @post | numberOfColumns() == old(numberOfColumns())
 	 * @post | other.numberOfColumns() == old(this.numberOfColumns())
-	 * @post | IntStream.range(1, numberOfColumns()).allMatch(i ->
-	 * 		 |		IntStream.range(1, numberOfRows()).allMatch(j -> toRowMajorArray()[i] == other.toRowMajorArray()[i] + old(this.toRowMajorArray().clone())[i]))
+	 * @post | IntStream.range(0, toRowMajorArray().length).allMatch(i -> this.toRowMajorArray()[i] == old(this.toRowMajorArray().clone())[i] + old(other.toRowMajorArray())[i])
+	 * 
 	 */
 	public void add(Mutable_Matrix other) {
 		if (other == null)
@@ -169,9 +170,14 @@ public class Mutable_Matrix {
 			throw new IllegalArgumentException("`other` heeft niet hetzelfde aantal kolommen als `this`");
 		if (other.numberOfRows() != this.numberOfRows())
 			throw new IllegalArgumentException("`other` heeft niet hetzelfde aantal rijen als `this`");
+		
+		double[] thisArray = this.toRowMajorArray().clone();
+	    double[] otherArray = other.toRowMajorArray().clone();
+
+		
 		double[] result_elementen = new double[other.toRowMajorArray().length];
 		for (int i = 0; i < result_elementen.length; i++) {
-			result_elementen[i] = this.toRowMajorArray()[i] + other.toRowMajorArray()[i];
+			result_elementen[i] = thisArray[i] + otherArray[i];
 		}
 		RMarray = result_elementen;
 		
